@@ -3,202 +3,900 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Med-Federate: Privacy-Preserving AI for Healthcare</title>
+    <title>SECURE ACCESS: Federated Learning Terminal</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons (used in both pages) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for gradients and subtle animations */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        /* --- GLOBAL & DARK MODE STYLES (For Login View) --- */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Light background */
+            background-color: #0d1117; /* Dark GitHub/Terminal background */
+            background-image: radial-gradient(circle at 50% 10%, rgba(27, 85, 226, 0.1) 0%, transparent 80%);
+            color: #e5e7eb; /* Light gray text */
+            min-height: 100vh;
+            padding: 1rem;
         }
-        .hero-bg {
-            background: linear-gradient(135deg, #1f2937 0%, #0c4a6e 100%); /* Deep Blue Gradient */
+
+        /* Core Card: The "Secure Data Node" */
+        .secure-node-card {
+            background-color: #161b22; /* Slightly lighter inner dark color */
+            border: 1px solid #2a3340;
+            box-shadow: 
+                0 0 10px rgba(0, 191, 255, 0.15), 
+                0 0 30px rgba(0, 191, 255, 0.05);
+            max-width: 480px;
+            width: 95%;
         }
-        .card-shadow {
-            box-shadow: 0 10px 30px rgba(0, 78, 117, 0.15);
-            transition: transform 0.3s ease;
+
+        /* Input Styling - Hacked/Monospace feel */
+        .terminal-input {
+            background-color: #0d1117; 
+            border: 1px solid #30363d;
+            color: #00ffaa; /* Bright green/cyan text for data */
+            font-family: 'Space Mono', monospace;
+            transition: all 0.2s;
         }
-        .card-shadow:hover {
-            transform: translateY(-5px);
+        .terminal-input:focus {
+            border-color: #00bfff; /* Bright blue focus */
+            box-shadow: 0 0 0 1px #00bfff;
         }
-        .flow-line {
-            position: absolute;
-            height: 4px;
-            background: #60a5fa;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 0;
-            opacity: 0.8;
+
+        /* Button Styling - High contrast and decisive */
+        .btn-authorize {
+            background-color: #00bfff; /* Bright Blue for Authorization */
+            color: #0d1117;
+            font-weight: 800;
+            transition: all 0.2s ease-in-out;
         }
-        .flow-node {
-            position: relative;
-            z-index: 10;
+        .btn-authorize:hover {
+            background-color: #00e0ff;
+            transform: translateY(-1px);
+        }
+
+        /* Compliance Bar - Prominent and separate */
+        .compliance-bar {
+            border-top: 2px solid #00ffaa; /* Green for compliance/health */
+        }
+        
+        .qa-submit-btn {
+            background-color: #00ffaa;
+            color: #161b22;
+        }
+        .qa-submit-btn:hover {
+            background-color: #00cc88;
+        }
+
+        /* --- LIGHT MODE STYLES (For Home Page View) --- */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+        
+        .bg-grid {
+            background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .bg-page {
+            background-color: #f8fafc; /* bg-slate-50 */
+            color: #475569; /* text-slate-600 */
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="antialiased">
 
-    <!-- Header / Navigation -->
-    <header class="sticky top-0 bg-white shadow-lg z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="text-3xl font-extrabold text-blue-800 flex items-center">
-                Med-Federate <span class="text-blue-500 ml-2 text-xl">🛡️</span>
-            </div>
-            <nav class="hidden md:flex space-x-8 font-semibold">
-                <a href="#problem" class="text-gray-600 hover:text-blue-600 transition duration-300">The Problem</a>
-                <a href="#architecture" class="text-gray-600 hover:text-blue-600 transition duration-300">Architecture</a>
-                <a href="#security" class="text-gray-600 hover:text-blue-600 transition duration-300">Security Layers</a>
-                <a href="#contact" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300">Partner with Us</a>
-            </nav>
-        </div>
-    </header>
+    <!-- 1. LOGIN VIEW CONTAINER (Visible by Default) -->
+    <div id="login-view" class="w-full min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Hero Section -->
-    <section class="hero-bg text-white py-24 sm:py-32">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-5xl sm:text-7xl font-extrabold mb-4 leading-tight">
-                AI Intelligence, <span class="text-blue-300">Patient Privacy</span> Guaranteed
-            </h1>
-            <p class="text-xl sm:text-2xl mb-10 max-w-3xl mx-auto text-blue-100">
-                Med-Federate unlocks collaborative machine learning across hospitals **without ever centralizing sensitive patient data.**
-            </p>
-            <div class="space-x-4">
-                <a href="#architecture" class="inline-block px-8 py-4 bg-blue-500 text-white font-bold rounded-xl shadow-2xl hover:bg-blue-600 transition duration-300 transform hover:scale-105">
-                    See The Secure Architecture
-                </a>
-            </div>
-        </div>
-    </section>
+        <!-- Secure Data Node Card -->
+        <div class="secure-node-card p-8 rounded-xl">
+            
+            <!-- Header & Branding -->
+            <header class="text-center mb-10">
+                <!-- Central Lock Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-[#00bfff]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z"/>
+                </svg>
+                
+                <h1 class="text-3xl font-extrabold text-white mt-4 tracking-wider">FEDERATED CLIENT TERMINAL</h1>
+                <p class="text-sm text-[#00ffaa] font-mono mt-1">:: PRIVACY-PRESERVING ACCESS INTERFACE ::</p>
+            </header>
 
-    <!-- The Problem Section -->
-    <section id="problem" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h2 class="text-4xl font-extrabold text-gray-800 mb-12">The Healthcare Data Dilemma</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="p-6 rounded-xl bg-red-50 border-red-200 border-2 card-shadow">
-                    <div class="text-4xl mb-4 text-red-600">🚨</div>
-                    <h3 class="text-xl font-bold mb-2">Data Silos</h3>
-                    <p class="text-gray-600">High-quality patient data is locked within individual hospital systems (data scarcity).</p>
-                </div>
-                <div class="p-6 rounded-xl bg-red-50 border-red-200 border-2 card-shadow">
-                    <div class="text-4xl mb-4 text-red-600">⚖️</div>
-                    <h3 class="text-xl font-bold mb-2">Legal Compliance</h3>
-                    <p class="text-gray-600">HIPAA and GDPR strictly forbid the centralization or sharing of raw patient records.</p>
-                </div>
-                <div class="p-6 rounded-xl bg-red-50 border-red-200 border-2 card-shadow">
-                    <div class="text-4xl mb-4 text-red-600">📉</div>
-                    <h3 class="text-xl font-bold mb-2">Model Bias</h3>
-                    <p class="text-gray-600">AI models trained on single-site data lack diversity and fail to generalize across populations.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+            <!-- Main Login Form (Step 1) -->
+            <div id="login-step" class="space-y-6">
+                <p class="text-sm text-red-400 bg-red-900 bg-opacity-30 p-3 rounded-md hidden border border-red-700" id="error-message">
+                    [ACCESS DENIED] Invalid credentials. Initiating audit log capture.
+                </p>
 
-    <!-- Architecture Section -->
-    <section id="architecture" class="py-20 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-4xl font-extrabold text-gray-800 mb-16 text-center">The Med-Federate 4-Step Architecture</h2>
-
-            <div class="relative flex justify-between items-stretch text-center space-x-4 md:space-x-8">
-                <!-- Node 1: Coordinator -->
-                <div class="flow-node flex-1 p-6 rounded-xl bg-white border-b-4 border-blue-500 card-shadow flex flex-col justify-center">
-                    <div class="text-3xl mb-3 text-blue-500">
-                        <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 002 2h-4a2 2 0 002-2m0 0a2 2 0 002 2h-4m2 2v6m-4-6h8m-4 0v6m-4 0v4m8-4v4"></path></svg>
+                <form id="login-form">
+                    
+                    <!-- ID/Email Input Group -->
+                    <label for="hospitalId" class="text-sm font-semibold text-gray-400 block mb-1">DATA NODE ID</label>
+                    <div class="input-group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <input type="text" id="hospitalId" placeholder="[user.hospital.id] or [email@host.com]" required
+                            class="terminal-input w-full p-3 rounded-lg focus:ring-2 focus:border-transparent text-sm"
+                            oninput="clearError()">
                     </div>
-                    <h3 class="text-xl font-semibold mb-1">1. Distribute Global Model</h3>
-                    <p class="text-sm text-gray-600">The Central Coordinator sends the latest model weights (parameters) to selected LCNs.</p>
-                </div>
 
-                <!-- Arrow 1 -->
-                <div class="hidden md:block w-16 relative">
-                    <div class="flow-line w-full"></div>
-                    <div class="absolute right-0 top-1/2 transform -translate-y-1/2 text-2xl text-blue-500">▶️</div>
-                </div>
-
-                <!-- Node 2: Local Training -->
-                <div class="flow-node flex-1 p-6 rounded-xl bg-white border-b-4 border-yellow-500 card-shadow flex flex-col justify-center">
-                    <div class="text-3xl mb-3 text-yellow-600">
-                        <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l4-2m5 2h2m-6 3h-2m-4 6h8m-4 3v3"></path></svg>
+                    <!-- Password Input Group -->
+                    <label for="password" class="text-sm font-semibold text-gray-400 block mt-4 mb-1">ENCRYPTION KEY</label>
+                    <div class="input-group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                        </svg>
+                        <input type="password" id="password" placeholder="****************" required
+                            class="terminal-input w-full p-3 rounded-lg focus:ring-2 focus:border-transparent text-sm"
+                            oninput="validatePassword(this.value)">
+                        <p id="pass-hint" class="text-xs text-gray-500 mt-1 pl-1 font-mono">:: 12+ chars, U/C, symbol required.</p>
                     </div>
-                    <h3 class="text-xl font-semibold mb-1">2. Local Training (LCN)</h3>
-                    <p class="text-sm text-gray-600">Each Local Client Node trains the model using its private, local patient data.</p>
-                </div>
-
-                <!-- Arrow 2 -->
-                <div class="hidden md:block w-16 relative">
-                    <div class="flow-line w-full"></div>
-                    <div class="absolute right-0 top-1/2 transform -translate-y-1/2 text-2xl text-blue-500">▶️</div>
-                </div>
-
-                <!-- Node 3: Privacy Pipeline -->
-                <div class="flow-node flex-1 p-6 rounded-xl bg-white border-b-4 border-green-500 card-shadow flex flex-col justify-center">
-                    <div class="text-3xl mb-3 text-green-600">
-                        <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm2-2h8m-4-2v-4"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-1">3. Apply DP & SA</h3>
-                    <p class="text-sm text-gray-600">Updates are masked with **noise (DP)** and **encrypted (SA)** before transmission.</p>
-                </div>
-
-                <!-- Arrow 3 -->
-                <div class="hidden md:block w-16 relative">
-                    <div class="flow-line w-full"></div>
-                    <div class="absolute right-0 top-1/2 transform -translate-y-1/2 text-2xl text-blue-500">▶️</div>
-                </div>
-
-                <!-- Node 4: Aggregation -->
-                <div class="flow-node flex-1 p-6 rounded-xl bg-white border-b-4 border-blue-500 card-shadow flex flex-col justify-center">
-                    <div class="text-3xl mb-3 text-blue-500">
-                        <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.657-3.243 3-4 3s-4-1.343-4-3 3.243-3 4-3 4 1.343 4 3zM12 11v6m0 0h4m-4 0h-4"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-1">4. Aggregate Global Model</h3>
-                    <p class="text-sm text-gray-600">CC combines the secure updates to create a superior, collective AI model.</p>
-                </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" id="login-button" class="btn-authorize w-full font-bold py-3 mt-8 rounded-lg shadow-xl flex items-center justify-center">
+                        <span id="button-text">REQUEST TWO-FACTOR AUTHORIZATION</span>
+                        <svg id="loading-spinner" class="animate-spin h-5 w-5 text-[#0d1117] ml-2 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                    </button>
+                </form>
             </div>
 
-            <p class="mt-12 text-center text-lg text-gray-600 italic border-t pt-6 max-w-4xl mx-auto">
-                **Key Outcome:** Raw data is **never** shared. Only secure, mathematically-protected model changes travel across the network.
-            </p>
-        </div>
-    </section>
+            <!-- MFA Step (Hidden by default) -->
+            <div id="mfa-step" class="space-y-6 hidden">
+                <h2 class="text-xl font-bold text-white">:: ACCESS PROTOCOL: MFA INITIATED</h2>
+                
+                <div class="bg-yellow-900 bg-opacity-30 border border-yellow-600 text-yellow-400 p-4 rounded-md font-mono text-sm" role="alert">
+                    <p class="font-bold mb-1">[ALERT] TWO-FACTOR REQUIRED</p>
+                    <p>Verify your identity via TOTP token or mobile push to finalize session establishment.</p>
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" id="mfaCode" placeholder="ENTER 6-DIGIT TOKEN" required
+                        class="terminal-input w-full p-3 text-center text-xl tracking-widest rounded-lg" maxlength="6">
+                </div>
 
-    <!-- Security Layers Section -->
-    <section id="security" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-4xl font-extrabold text-gray-800 mb-12 text-center">🛡️ Our Multi-Layered Security Guarantee</h2>
-            <div class="grid md:grid-cols-3 gap-8 text-center">
-                <div class="p-6 rounded-xl bg-blue-50 border border-blue-200 card-shadow">
-                    <h3 class="text-2xl font-bold text-blue-800 mb-2">1. Federated Learning (FL)</h3>
-                    <p class="text-gray-600">**Data Stays Local.** Establishes data sovereignty by ensuring raw patient records remain locked behind the hospital firewall.</p>
-                </div>
-                <div class="p-6 rounded-xl bg-green-50 border border-green-200 card-shadow">
-                    <h3 class="text-2xl font-bold text-green-800 mb-2">2. Differential Privacy (DP)</h3>
-                    <p class="text-gray-600">**Mathematical Protection.** Adds calibrated noise to model updates, making it impossible to infer individual patient data, offering **provable privacy**.</p>
-                </div>
-                <div class="p-6 rounded-xl bg-purple-50 border border-purple-200 card-shadow">
-                    <h3 class="text-2xl font-bold text-purple-800 mb-2">3. Secure Aggregation (SA)</h3>
-                    <p class="text-gray-600">**Cryptographic Shield.** Uses encryption to ensure the Central Coordinator only sees the combined sum, protecting each hospital's contribution.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <footer id="contact" class="py-16 hero-bg text-white">
-        <div class="max-w-4xl mx-auto px-4 text-center">
-            <h2 class="text-3xl font-extrabold mb-4 text-blue-300">Ready to build the future of medical AI?</h2>
-            <p class="text-lg mb-8">Join the Med-Federate network to transform research, improve diagnostics, and maintain absolute patient confidentiality.</p>
-            <form action="#" method="POST" class="space-y-4">
-                <input type="email" placeholder="Your Work Email" class="w-full p-3 rounded-lg text-gray-800 focus:ring-blue-500 focus:border-blue-500" required>
-                <textarea placeholder="Tell us about your organization and research needs (e.g., medical imaging, drug discovery)" rows="4" class="w-full p-3 rounded-lg text-gray-800 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                <button type="submit" class="w-full px-6 py-3 bg-blue-500 text-white font-bold rounded-lg shadow-xl hover:bg-blue-600 transition duration-300 transform hover:scale-[1.01]">
-                    Request Partnership & Technical Brief
+                <button onclick="simulateMfaSuccess()" class="btn-authorize w-full font-bold py-3 rounded-lg shadow-xl">
+                    VALIDATE TOKEN & ESTABLISH SESSION
                 </button>
-            </form>
-            <p class="mt-8 text-sm text-blue-200">&copy; 2024 Med-Federate. All Rights Reserved. Built with Trust & Technology.</p>
-        </div>
-    </footer>
+                <button onclick="returnToLogin()" class="w-full text-sm text-gray-500 hover:text-white mt-2 font-mono">
+                    &larr; CANCEL LOGIN & RESET
+                </button>
+            </div>
 
+            <!-- Compliance & Footer -->
+            <footer class="mt-10 pt-4 compliance-bar text-center">
+                <p class="text-sm text-[#00ffaa] font-bold mb-2 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#00ffaa] mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    REGULATORY STATUS: HIPAA/GDPR LEVEL 5
+                </p>
+                <p class="text-xs text-gray-500 leading-snug px-4 font-mono">
+                    All model updates are secured via Differential Privacy. Data interaction is logged and subject to continuous audit.
+                </p>
+                <p class="text-sm text-[#00bfff] font-extrabold mt-3 tracking-widest">
+                    DATA IS IMMOBILE. PRIVACY IS GUARANTEED.
+                </p>
+            </footer>
+
+        </div>
+        
+        <!-- Gemini-Powered Q&A Feature -->
+        <div class="qa-container p-6 rounded-lg shadow-md border-t-4 border-[#00bfff] mt-6">
+            <h2 class="text-lg font-bold text-[#00bfff] mb-3 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#00ffaa] mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.11.89-2 2-2s2 .89 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
+                </svg>
+                :: COMPLIANCE ANALYST INTERFACE
+            </h2>
+            <p class="text-sm text-gray-400 mb-4 font-mono">
+                Query regulatory & operational guidelines. Ground truth enforced.
+            </p>
+            
+            <div class="flex space-x-2">
+                <input type="text" id="qa-input" placeholder="[QUERY] What is Differential Privacy?" 
+                    class="terminal-input w-full p-2 rounded-md text-sm">
+                <button id="qa-submit" class="qa-submit-btn text-white font-semibold py-2 px-4 rounded-md transition duration-200 shadow-md flex items-center">
+                    Query
+                </button>
+            </div>
+
+            <div id="qa-output" class="mt-4 p-4 bg-[#0d1117] border border-[#2a3340] rounded-md hidden">
+                <p class="text-[#00ffaa] font-semibold mb-2 font-mono">:: ANALYST RESPONSE</p>
+                <div id="qa-response-text" class="text-sm text-gray-300 whitespace-pre-wrap"></div>
+                <div id="qa-sources" class="mt-3 pt-2 border-t border-[#30363d] text-xs text-gray-500 font-mono"></div>
+            </div>
+            
+            <div id="qa-loading" class="mt-4 p-4 text-center text-[#00bfff] hidden">
+                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span class="font-mono text-sm mt-2 block">Processing query... Standby.</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 2. HOME PAGE VIEW CONTAINER (Hidden by Default) -->
+    <div id="main-app-view" class="hidden w-full min-h-screen bg-page antialiased selection:bg-indigo-100 selection:text-indigo-900">
+        
+        <!-- Navbar -->
+        <nav class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
+            <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white">
+                        <i data-lucide="shield-check" class="h-5 w-5"></i>
+                    </div>
+                    <span class="text-lg font-medium tracking-tight text-slate-900">SecureMed</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-500">
+                    <a href="#" class="hover:text-slate-900 transition-colors">Protocol</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Security</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Nodes</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Documentation</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- Button to log out / return to login -->
+                    <button onclick="returnToLoginScreen()" class="text-sm font-medium text-slate-500 hover:text-slate-900">Log out</button>
+                    <button class="rounded-full bg-slate-900 px-4 py-2 text-xs font-medium text-white hover:bg-slate-800 transition-all shadow-md hover:shadow-lg">
+                        Deploy Node
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24">
+            <!-- Background Elements -->
+            <div class="absolute inset-0 bg-grid [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+            <div class="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-indigo-50 blur-3xl opacity-50 mix-blend-multiply"></div>
+            <div class="absolute top-1/4 right-0 h-96 w-96 rounded-full bg-teal-50 blur-3xl opacity-50 mix-blend-multiply"></div>
+
+            <div class="relative mx-auto max-w-7xl px-6 text-center">
+                <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 mb-8 shadow-sm">
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-medium text-slate-600">v2.4 with Differential Privacy (ε=0.5)</span>
+                </div>
+                
+                <h1 class="mx-auto max-w-4xl text-5xl font-medium tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+                    Collaborative Intelligence,<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-teal-500">Zero Data Exposure.</span>
+                </h1>
+                
+                <p class="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-500 font-light">
+                    Train medical AI models across distributed healthcare institutions without sharing patient records. Powered by Secure Aggregation and strict Differential Privacy budgets.
+                </p>
+
+                <div class="mt-10 flex items-center justify-center gap-4">
+                    <button class="group flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                        Start Federated Training
+                        <i data-lucide="arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                    <button class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
+                        <i data-lucide="file-code" class="h-4 w-4 text-slate-400"></i>
+                        Read the Whitepaper
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard UI Mockup -->
+            <div class="relative mx-auto mt-20 max-w-5xl px-6 lg:px-8">
+                <div class="rounded-xl border border-slate-200 bg-white shadow-2xl overflow-hidden ring-1 ring-slate-900/5">
+                    
+                    <!-- Mockup Header -->
+                    <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="flex gap-1.5">
+                                <div class="h-3 w-3 rounded-full bg-red-400/80"></div>
+                                <div class="h-3 w-3 rounded-full bg-amber-400/80"></div>
+                                <div class="h-3 w-3 rounded-full bg-emerald-400/80"></div>
+                            </div>
+                            <div class="h-4 w-px bg-slate-200 mx-2"></div>
+                            <span class="text-xs font-medium text-slate-500">Federated Console - Global Model: ResNet50_Medical_v4</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">
+                                <div class="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
+                                Secure Aggregation Active
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Mockup Body -->
+                    <div class="flex h-[450px] bg-white">
+                        
+                        <!-- Sidebar: Nodes -->
+                        <div class="w-64 border-r border-slate-100 bg-slate-50/30 flex flex-col">
+                            <div class="p-4 border-b border-slate-100">
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Active Nodes (4)</h3>
+                            </div>
+                            <div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                                <!-- Node Item Active -->
+                                <div class="group flex items-center justify-between rounded-lg bg-white border border-slate-200 p-3 shadow-sm cursor-pointer hover:border-indigo-200 transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
+                                            <i data-lucide="activity" class="h-4 w-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-medium text-slate-900">Mayo Clinic</div>
+                                            <div class="text-[10px] text-slate-500">Local Epoch: 45</div>
+                                        </div>
+                                    </div>
+                                    <div class="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                                </div>
+
+                                <!-- Node Item -->
+                                <div class="group flex items-center justify-between rounded-lg border border-transparent hover:bg-slate-100 p-3 cursor-pointer transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-500 group-hover:bg-white">
+                                            <i data-lucide="server" class="h-4 w-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-medium text-slate-700">Johns Hopkins</div>
+                                            <div class="text-[10px] text-slate-500">Uploading Gradients...</div>
+                                        </div>
+                                    </div>
+                                    <div class="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></div>
+                                </div>
+
+                                <!-- Node Item -->
+                                <div class="group flex items-center justify-between rounded-lg border border-transparent hover:bg-slate-100 p-3 cursor-pointer transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-500 group-hover:bg-white">
+                                            <i data-lucide="server" class="h-4 w-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-medium text-slate-700">Charité Berlin</div>
+                                            <div class="text-[10px] text-slate-500">Computing Noise</div>
+                                        </div>
+                                    </div>
+                                    <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
+                                </div>
+                                
+                                <!-- Node Item -->
+                                <div class="group flex items-center justify-between rounded-lg border border-transparent hover:bg-slate-100 p-3 cursor-pointer transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-500 group-hover:bg-white">
+                                            <i data-lucide="server" class="h-4 w-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-medium text-slate-700">Tokyo Univ. Hosp</div>
+                                            <div class="text-[10px] text-slate-500">Syncing...</div>
+                                        </div>
+                                    </div>
+                                    <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
+                                </div>
+                            </div>
+                            <div class="p-3 border-t border-slate-100 bg-slate-50">
+                                <div class="flex items-center justify-between text-[10px] text-slate-400 uppercase font-medium tracking-wider mb-2">
+                                    <span>Network Load</span>
+                                    <span>4.2 GB/s</span>
+                                </div>
+                                <div class="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-indigo-500 w-3/4 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Area: Charts & Stats -->
+                        <div class="flex-1 flex flex-col p-6 overflow-hidden">
+                            <div class="flex items-start justify-between mb-6">
+                                <div>
+                                    <h2 class="text-sm font-semibold text-slate-900">Training Progress</h2>
+                                    <p class="text-xs text-slate-500 mt-1">Global Round #128 • Gradient Clipping Active</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="px-2 py-1 rounded bg-slate-100 text-xs font-medium text-slate-600 border border-slate-200">Loss: 0.142</span>
+                                    <span class="px-2 py-1 rounded bg-indigo-50 text-xs font-medium text-indigo-600 border border-indigo-100">Accuracy: 94.8%</span>
+                                </div>
+                            </div>
+
+                            <!-- Graph Visualization (CSS) -->
+                            <div class="flex-1 relative border-l border-b border-slate-100 min-h-[160px] flex items-end px-4 gap-2 mb-6">
+                                <!-- Background Grid Lines -->
+                                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-50 pb-6 pl-4">
+                                    <div class="w-full h-px border-t border-dashed border-slate-200"></div>
+                                    <div class="w-full h-px border-t border-dashed border-slate-200"></div>
+                                    <div class="w-full h-px border-t border-dashed border-slate-200"></div>
+                                    <div class="w-full h-px border-t border-dashed border-slate-200"></div>
+                                </div>
+                                
+                                <!-- Bars representing rounds -->
+                                <div class="w-1/12 bg-indigo-100 rounded-t-sm h-[20%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R1</div></div>
+                                <div class="w-1/12 bg-indigo-200 rounded-t-sm h-[35%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R2</div></div>
+                                <div class="w-1/12 bg-indigo-300 rounded-t-sm h-[45%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R3</div></div>
+                                <div class="w-1/12 bg-indigo-400 rounded-t-sm h-[50%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R4</div></div>
+                                <div class="w-1/12 bg-indigo-500 rounded-t-sm h-[65%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R5</div></div>
+                                <div class="w-1/12 bg-indigo-500 rounded-t-sm h-[72%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R6</div></div>
+                                <div class="w-1/12 bg-indigo-600 rounded-t-sm h-[80%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R7</div></div>
+                                <div class="w-1/12 bg-indigo-600 rounded-t-sm h-[84%] relative group"><div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-slate-800 text-white px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">R8</div></div>
+                            </div>
+
+                            <!-- Logs Console -->
+                            <div class="h-32 bg-slate-900 rounded-lg p-3 overflow-hidden font-mono text-[10px] leading-4 text-slate-300 shadow-inner">
+                                <div class="opacity-50 border-b border-slate-700 pb-1 mb-1 flex justify-between">
+                                    <span>SYSTEM LOGS</span>
+                                    <span>LIVE</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <p><span class="text-indigo-400">14:22:01</span> [INFO] Round 128 initiated.</p>
+                                    <p><span class="text-indigo-400">14:22:03</span> [SEC] Differential Privacy noise added (Laplace, ε=0.5).</p>
+                                    <p><span class="text-indigo-400">14:22:05</span> [NET] Receiving encrypted gradients from Node A...</p>
+                                    <p><span class="text-indigo-400">14:22:06</span> [NET] Receiving encrypted gradients from Node B...</p>
+                                    <p><span class="text-emerald-400">14:22:08</span> [SUCCESS] Secure aggregation complete. Model updated.</p>
+                                    <p class="animate-pulse"><span class="text-amber-400">14:22:09</span> [WAIT] Waiting for next epoch trigger...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Privacy Config -->
+                        <div class="w-72 bg-slate-50 border-l border-slate-100 p-5 flex flex-col gap-6">
+                            <div>
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-900 mb-4">Privacy Budget</h3>
+                                
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-500">Epsilon (ε)</span>
+                                        <span class="font-medium text-slate-900">0.5</span>
+                                    </div>
+                                    <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                                        <div class="h-full bg-emerald-500 w-1/4 rounded-full"></div>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-1">High Privacy protection enabled.</p>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-500">Delta (δ)</span>
+                                        <span class="font-medium text-slate-900">1e-5</span>
+                                    </div>
+                                    <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                                        <div class="h-full bg-slate-400 w-[10%] rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-200 pt-5">
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-900 mb-4">Mechanisms</h3>
+                                
+                                <!-- Custom Toggle Item -->
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="lock" class="h-3 w-3 text-slate-400"></i>
+                                        <span class="text-xs font-medium text-slate-600">Secure Aggregation</span>
+                                    </div>
+                                    <!-- Simplified Toggle UI for Mockup -->
+                                    <div class="relative inline-block w-8 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <div class="w-8 h-4 bg-emerald-500 rounded-full shadow-inner"></div>
+                                        <div class="absolute right-0 top-0 block w-4 h-4 bg-white border-2 border-emerald-500 rounded-full shadow inset-y-0 transform translate-x-0"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Custom Toggle Item -->
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="scissors" class="h-3 w-3 text-slate-400"></i>
+                                        <span class="text-xs font-medium text-slate-600">Gradient Clipping</span>
+                                    </div>
+                                    <!-- Simplified Toggle UI for Mockup -->
+                                    <div class="relative inline-block w-8 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <div class="w-8 h-4 bg-emerald-500 rounded-full shadow-inner"></div>
+                                        <div class="absolute right-0 top-0 block w-4 h-4 bg-white border-2 border-emerald-500 rounded-full shadow inset-y-0 transform translate-x-0"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto bg-indigo-50 rounded-lg p-3 border border-indigo-100">
+                                <div class="flex gap-2 items-start">
+                                    <i data-lucide="info" class="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0"></i>
+                                    <p class="text-[10px] text-indigo-800 leading-tight">
+                                        Patient data never leaves local nodes. Only noisy gradients are transmitted.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="py-24 bg-white border-y border-slate-200">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-sm font-semibold text-indigo-600 tracking-wide uppercase">Core Architecture</h2>
+                    <p class="mt-2 text-3xl font-medium tracking-tight text-slate-900">Security without compromise.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="group p-8 rounded-2xl bg-slate-50 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all">
+                        <div class="h-10 w-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                            <i data-lucide="venetian-mask" class="h-5 w-5 text-slate-900"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Differential Privacy</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Mathematically guaranteed privacy using Laplace and Gaussian noise injection mechanisms (DP-SGD) to prevent model inversion attacks.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="group p-8 rounded-2xl bg-slate-50 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all">
+                        <div class="h-10 w-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                            <i data-lucide="network" class="h-5 w-5 text-slate-900"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Federated Averaging</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Utilizes FedAvg and FedProx algorithms to aggregate local model updates into a global model, handling non-IID data distributions effectively.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="group p-8 rounded-2xl bg-slate-50 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all">
+                        <div class="h-10 w-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                            <i data-lucide="lock-keyhole" class="h-5 w-5 text-slate-900"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Homomorphic Encryption</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Optional Additive Homomorphic Encryption layer ensures the central server cannot inspect individual gradient updates during aggregation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats / Trust Section -->
+        <section class="py-24 bg-slate-50">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl font-medium tracking-tight text-slate-900 mb-6">Designed for HIPAA &amp; GDPR Compliance</h2>
+                        <div class="space-y-6">
+                            <div class="flex gap-4">
+                                <div class="mt-1">
+                                    <div class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                        <i data-lucide="check" class="h-3 w-3"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-900">Data Residency</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Raw patient data remains on-premise at local hospitals.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="mt-1">
+                                    <div class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                        <i data-lucide="check" class="h-3 w-3"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-900">Audit Trails</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Immutable logs of all aggregation rounds and privacy budget consumption.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="mt-1">
+                                    <div class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                        <i data-lucide="check" class="h-3 w-3"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-900">Attack Mitigation</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Defends against membership inference and poisoning attacks.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <!-- Code snippet visual -->
+                        <div class="rounded-xl bg-slate-900 shadow-2xl p-6 overflow-hidden">
+                            <div class="flex items-center gap-2 mb-4">
+                                <div class="h-3 w-3 rounded-full bg-red-500"></div>
+                                <div class="h-3 w-3 rounded-full bg-amber-500"></div>
+                                <div class="h-3 w-3 rounded-full bg-emerald-500"></div>
+                                <span class="ml-2 text-xs text-slate-500 font-mono">config.yaml</span>
+                            </div>
+                            <pre class="font-mono text-xs text-slate-300 overflow-x-auto"><span class="text-purple-400">federated_learning:</span>
+  <span class="text-blue-400">rounds:</span> 200
+  <span class="text-blue-400">strategy:</span> "FedAvg"
+  <span class="text-blue-400">min_available_clients:</span> 4
+
+<span class="text-purple-400">differential_privacy:</span>
+  <span class="text-blue-400">enabled:</span> true
+  <span class="text-blue-400">epsilon:</span> 0.5
+  <span class="text-blue-400">delta:</span> 1e-5
+  <span class="text-blue-400">clipping_norm:</span> 1.2
+  <span class="text-blue-400">mechanism:</span> "Laplace"
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-slate-200 py-12">
+            <div class="mx-auto max-w-7xl px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-900 text-white">
+                        <i data-lucide="shield-check" class="h-3 w-3"></i>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-900 tracking-tight">SecureMed</span>
+                    <span class="text-xs text-slate-400 ml-2">© 2023 Inc.</span>
+                </div>
+                <div class="flex gap-6">
+                    <a href="#" class="text-xs text-slate-500 hover:text-slate-900">Privacy Policy</a>
+                    <a href="#" class="text-xs text-slate-500 hover:text-slate-900">Terms of Service</a>
+                    <a href="#" class="text-xs text-slate-500 hover:text-slate-900">Status</a>
+                    <a href="#" class="text-xs text-slate-500 hover:text-slate-900">GitHub</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons for both views
+        lucide.createIcons();
+
+        const loginView = document.getElementById('login-view');
+        const mainAppView = document.getElementById('main-app-view');
+        
+        const loginForm = document.getElementById('login-form');
+        const loginStep = document.getElementById('login-step');
+        const mfaStep = document.getElementById('mfa-step');
+        const loginButton = document.getElementById('login-button');
+        const buttonText = document.getElementById('button-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const errorMessage = document.getElementById('error-message');
+        
+        // Gemini Q&A Elements
+        const qaInput = document.getElementById('qa-input');
+        const qaSubmit = document.getElementById('qa-submit');
+        const qaOutput = document.getElementById('qa-output');
+        const qaResponseText = document.getElementById('qa-response-text');
+        const qaSources = document.getElementById('qa-sources');
+        const qaLoading = document.getElementById('qa-loading');
+
+        // --- NAVIGATION LOGIC ---
+
+        function navigateToApp() {
+            // After successful login/MFA, switch views
+            loginView.classList.add('hidden');
+            mainAppView.classList.remove('hidden');
+            document.body.className = 'bg-slate-50 text-slate-600 antialiased selection:bg-indigo-100 selection:text-indigo-900'; // Apply light mode body class
+        }
+
+        function returnToLoginScreen() {
+            // Log out / return to login view
+            mainAppView.classList.add('hidden');
+            loginView.classList.remove('hidden');
+            // Reapply dark mode body class and reset UI
+            document.body.className = 'antialiased';
+            mfaStep.classList.add('hidden');
+            loginStep.classList.remove('hidden');
+            document.getElementById('mfaCode').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('hospitalId').value = '';
+            document.getElementById('pass-hint').textContent = ':: 12+ chars, U/C, symbol required.';
+        }
+
+        // --- CORE APPLICATION LOGIC (Non-LLM) ---
+
+        // Function to check password strength and provide hint feedback
+        function validatePassword(password) {
+            const hint = document.getElementById('pass-hint');
+            const minLength = password.length >= 12;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+            if (minLength && hasUpper && hasSymbol) {
+                hint.className = 'text-xs text-[#00ffaa] mt-1 pl-1 font-mono';
+                hint.textContent = ':: KEY STRENGTH: SECURE. READY.';
+                return true;
+            } else {
+                hint.className = 'text-xs text-gray-500 mt-1 pl-1 font-mono';
+                let requirements = [];
+                if (!minLength) requirements.push("12+ chars");
+                if (!hasUpper) requirements.push("U/C");
+                if (!hasSymbol) requirements.push("symbol");
+                hint.textContent = requirements.length > 0 
+                    ? `:: REQUIREMENT VIOLATION: ${requirements.join(', ')} missing.`
+                    : ':: 12+ chars, U/C, symbol required.';
+                return false;
+            }
+        }
+
+        function clearError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        // Simulate the initial login submission (Step 1)
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            clearError();
+
+            const passwordInput = document.getElementById('password');
+            if (!validatePassword(passwordInput.value)) {
+                errorMessage.textContent = '[ACCESS DENIED] Encryption key strength insufficient or missing.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            // Simulate loading state
+            buttonText.textContent = 'AUTHENTICATING KEY...';
+            loadingSpinner.classList.remove('hidden');
+            loginButton.disabled = true;
+
+            // Simulate API call delay for security check
+            setTimeout(() => {
+                // For demonstration, simulate successful primary login
+                loginStep.classList.add('hidden');
+                mfaStep.classList.remove('hidden');
+                
+                // Reset button state
+                buttonText.textContent = 'REQUEST TWO-FACTOR AUTHORIZATION';
+                loadingSpinner.classList.add('hidden');
+                loginButton.disabled = false;
+
+            }, 1500); // 1.5 seconds simulated latency
+        });
+
+        // Simulate the MFA submission (Step 2)
+        function simulateMfaSuccess() {
+            const mfaCode = document.getElementById('mfaCode').value;
+            const mfaButton = mfaStep.querySelector('button');
+            
+            if (mfaCode.trim() === "") {
+                alertBox('[ERROR] Token required for session establishment.', 'error');
+                return;
+            }
+
+            mfaButton.textContent = 'VALIDATING TOKEN...';
+            mfaButton.disabled = true;
+
+            setTimeout(() => {
+                // Simulate successful MFA check
+                alertBox('ACCESS GRANTED. Session established. Redirecting to Dashboard...', 'success');
+                mfaButton.textContent = 'SESSION ESTABLISHED';
+                mfaButton.classList.remove('btn-authorize');
+                mfaButton.classList.add('bg-green-600', 'text-white');
+                
+                // *** NAVIGATE TO HOME PAGE ***
+                setTimeout(navigateToApp, 500);
+
+            }, 1500);
+        }
+
+        function returnToLogin() {
+            mfaStep.classList.add('hidden');
+            loginStep.classList.remove('hidden');
+            document.getElementById('mfaCode').value = '';
+        }
+        
+        // Custom Alert Box Function (Replacing forbidden alert())
+        function alertBox(message, type) {
+            const colors = {
+                'success': 'bg-green-900 border-green-600 text-green-300',
+                'error': 'bg-red-900 border-red-600 text-red-300'
+            };
+            
+            const existingBox = document.querySelector('.custom-alert-box');
+            if (existingBox) existingBox.remove();
+
+            const box = document.createElement('div');
+            box.className = `custom-alert-box fixed top-4 right-4 p-4 rounded-lg shadow-xl border-l-4 ${colors[type]} font-mono`;
+            box.innerHTML = `<p class="font-bold">${message}</p>`;
+            
+            document.body.appendChild(box);
+
+            setTimeout(() => {
+                box.remove();
+            }, 5000);
+        }
+
+        // --- GEMINI LLM API LOGIC ---
+        
+        // API Configuration
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+        const apiKey = ""; // API key is provided by the environment
+
+        // Function for making the API call with exponential backoff
+        async function fetchWithBackoff(url, options, retries = 5, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status !== 429) { // 429 is Too Many Requests
+                        return response;
+                    }
+                } catch (error) {
+                    // Log error but don't stop execution unless max retries are hit
+                    if (i === retries - 1) throw error;
+                }
+                await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
+            }
+            throw new Error('API call failed after maximum retries.');
+        }
+
+        qaSubmit.addEventListener('click', async () => {
+            const userQuery = qaInput.value.trim();
+            if (!userQuery) {
+                alertBox('[ERROR] Input field empty. Provide a security query.', 'error');
+                return;
+            }
+
+            // Show loading state and clear previous output
+            qaOutput.classList.add('hidden');
+            qaResponseText.textContent = '';
+            qaSources.textContent = '';
+            qaLoading.classList.remove('hidden');
+            qaSubmit.disabled = true;
+            qaInput.disabled = true;
+
+            const systemPrompt = "You are a specialized Healthcare Security and Federated Learning Compliance Analyst. Provide concise, authoritative, and policy-grounded answers to the user's questions regarding HIPAA, GDPR, Differential Privacy, Federated Learning protocols, or system access. Always prioritize factual, verifiable information. If you use external information, cite the source. Respond in a formal, technical, and clipped style suitable for a command-line interface.";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            try {
+                const response = await fetchWithBackoff(`${API_URL}?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                let text = "[ERROR] Query failed. Resource contention or invalid payload. Retry operation.";
+                let sourcesHtml = "";
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    text = candidate.content.parts[0].text;
+
+                    // Extract grounding sources
+                    const groundingMetadata = candidate.groundingMetadata;
+                    let sources = [];
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title);
+                    }
+
+                    if (sources.length > 0) {
+                        sourcesHtml = '<p class="font-medium text-gray-400 mt-2">:: CITATIONS</p>' + sources.map((s, index) => 
+                            `<a href="${s.uri}" target="_blank" class="text-xs text-[#00bfff] hover:underline block truncate">${index + 1}. ${s.title}</a>`
+                        ).join('');
+                    } else {
+                        sourcesHtml = '<p class="text-gray-500 mt-2">:: No external ground truth references found.</p>';
+                    }
+                }
+
+                qaResponseText.textContent = text;
+                qaSources.innerHTML = sourcesHtml;
+                qaOutput.classList.remove('hidden');
+
+            } catch (error) {
+                qaResponseText.textContent = `[CRITICAL ERROR] Failed to connect to Analyst Interface: ${error.message}.`;
+                qaOutput.classList.remove('hidden');
+            } finally {
+                qaLoading.classList.add('hidden');
+                qaSubmit.disabled = false;
+                qaInput.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
